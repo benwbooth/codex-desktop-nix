@@ -35,15 +35,37 @@ nix run github:benwbooth/codex-desktop-nix
 
 ## Keeping it current
 
-OpenAI publishes `Codex.dmg` at a stable URL and overwrites it with every release. This flake tracks the DMG as a `flake = false` input, so a normal flake update bumps it:
+OpenAI publishes `Codex.dmg` at a stable URL and overwrites it with every release. This flake tracks the DMG as a `flake = false` input named `codex-dmg`, so the hash lives in `flake.lock` and a flake update re-fetches.
+
+**Inside this repo** (gets the latest DMG and commits a new lock):
 
 ```sh
-nix flake update codex-desktop          # in the consumer flake
-# or, from within this repo:
+cd codex-desktop-nix
 nix flake update codex-dmg
+git commit -am "Bump Codex.dmg"
+git push
 ```
 
-`flake.lock` records the new `narHash`; the next build picks up the fresh DMG automatically. No manual hash patching.
+**In a consumer flake** — important: `nix flake update codex-desktop` here only pulls this repo's latest commit; it uses **this repo's `flake.lock`** for the DMG hash. So if upstream has shipped a new DMG but this repo hasn't been bumped yet, you stay on the old one. Two ways around that:
+
+#### Recommended: lift `codex-dmg` to a top-level input via `follows`
+
+```nix
+inputs.codex-desktop = {
+  url = "github:benwbooth/codex-desktop-nix";
+  inputs.codex-dmg.follows = "codex-dmg";   # override the transitive input
+};
+inputs.codex-dmg = {
+  url = "file+https://persistent.oaistatic.com/codex-app-prod/Codex.dmg";
+  flake = false;
+};
+```
+
+Now your consumer flake owns the `codex-dmg` lock at the top level. `nix flake update codex-dmg` (or a bare `nix flake update`) re-fetches OpenAI's URL directly and bumps the hash — no round-trip through this repo, no waiting for someone to push a lock bump.
+
+#### Or, accept the indirection
+
+If you don't add the override, your consumer is pinned to whatever this repo's `flake.lock` recorded at the commit you're on. Run `nix flake update codex-desktop` to pull the newest commit + lock from this repo when you want the latest.
 
 ## Environment variables
 
