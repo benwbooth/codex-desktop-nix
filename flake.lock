@@ -1,0 +1,40 @@
+{
+  "nodes": {
+    "codex-dmg": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-Qn1cmRIypdG3QC54zl4uAy9PB9oZnGbf6M1sZeO6szw=",
+        "type": "file",
+        "url": "https://persistent.oaistatic.com/codex-app-prod/Codex.dmg"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://persistent.oaistatic.com/codex-app-prod/Codex.dmg"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1780243769,
+        "narHash": "sha256-x5UQuRsH3MqI0U9afaXSNqzTPSeZlRLvFAav2Ux1pNw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "331800de5053fcebacf6813adb5db9c9dca22a0c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "codex-dmg": "codex-dmg",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
