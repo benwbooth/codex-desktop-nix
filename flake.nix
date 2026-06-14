@@ -41,7 +41,13 @@
 
       unpackPhase = ''
         mkdir -p dmg-extract
-        ${_7zz}/bin/7zz x -y "$src" -o"dmg-extract" 2>&1
+        # 7zz returns exit code 2 ("warning") when the DMG contains symlinks
+        # whose targets escape the archive root ("Dangerous link path was
+        # ignored"). The new Codex.dmg bundles a cua_node/ tree with relative
+        # symlinks for npm .bin shortcuts that trip this. We don't need those
+        # symlinks (we strip and rebuild node_modules below anyway), so allow
+        # 7zz to skip them and only fail if Codex.app itself didn't extract.
+        ${_7zz}/bin/7zz x -y "$src" -o"dmg-extract" 2>&1 || true
         APP_PATH=$(find dmg-extract -name "Codex.app" -type d | head -1)
         [ -z "$APP_PATH" ] && { echo "Could not find Codex.app in DMG"; find dmg-extract -type d; exit 1; }
         cp -r "$APP_PATH" ./Codex.app
